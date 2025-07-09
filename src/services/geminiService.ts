@@ -1,0 +1,80 @@
+import { GoogleGenerativeAI } from '@google/generative-ai';
+
+class GeminiService {
+  private genAI: GoogleGenerativeAI;
+  private model: any;
+
+  constructor() {
+    const apiKey = import.meta.env.VITE_GEMINI_API_KEY;
+    if (!apiKey) {
+      throw new Error('Gemini API key not found. Please add VITE_GEMINI_API_KEY to your .env file');
+    }
+    
+    this.genAI = new GoogleGenerativeAI(apiKey);
+    this.model = this.genAI.getGenerativeModel({ model: "gemini-1.5-flash" });
+  }
+
+  async generateResponse(userMessage: string): Promise<string> {
+    try {
+      // Enhanced prompt with SRM-specific context
+      const srmContext = `
+You are an AI assistant for SRM Guide, specifically designed to help freshers at SRM University (SRM Institute of Science and Technology) navigate college life. 
+
+Key SRM University Information:
+- Located in Kattankulathur, Chennai, Tamil Nadu
+- Follows semester system with credit-based evaluation
+- Minimum 75% attendance required for all courses
+- Grading scale: A(10), B(9), C(8), D(7), E(6), F(0)
+- Total B.Tech credits required: 160
+- Exam pattern: 3 Cycle Tests (30 marks) + Internal Assessment (20 marks) + End Semester Exam (50 marks) = 100 marks
+- Pass criteria: Minimum 40% in both internal and end semester, overall 50% to pass
+- Cycle tests happen in weeks 4-5, 8-9, and 12-13 of semester
+- Hostel facilities available with mess, Wi-Fi, and recreational facilities
+- Active placement cell with top companies visiting campus
+
+Please provide accurate, helpful, and specific information about SRM University. If you're unsure about specific details, acknowledge it and suggest contacting the university directly.
+
+User Question: ${userMessage}
+
+Please respond in a friendly, helpful manner as if you're a senior student guiding a fresher.
+`;
+
+      const result = await this.model.generateContent(srmContext);
+      const response = await result.response;
+      return response.text();
+    } catch (error) {
+      console.error('Error generating response:', error);
+      
+      if (error instanceof Error) {
+        if (error.message.includes('API key')) {
+          throw new Error("I'm sorry, but there seems to be an issue with the API configuration. Please make sure the Gemini API key is properly set up.");
+        }
+        if (error.message.includes('quota') || error.message.includes('limit') || error.message.includes('overloaded')) {
+          throw new Error("I'm currently experiencing high traffic. Please try again in a moment, or check our FAQ section for common questions.");
+        }
+      }
+      
+      throw new Error("I'm sorry, I'm having trouble processing your request right now. Please try again later or browse our FAQ section for common questions about SRM University.");
+    }
+  }
+
+  async generateBlogContent(topic: string): Promise<string> {
+    try {
+      const prompt = `
+Write a comprehensive blog post about "${topic}" specifically for SRM University freshers. 
+Include practical tips, specific information about SRM, and actionable advice.
+Format the response in HTML with proper headings (h2, h3), paragraphs, and lists.
+Make it engaging and informative for first-year students.
+`;
+
+      const result = await this.model.generateContent(prompt);
+      const response = await result.response;
+      return response.text();
+    } catch (error) {
+      console.error('Error generating blog content:', error);
+      return "Unable to generate content at this time. Please try again later.";
+    }
+  }
+}
+
+export const geminiService = new GeminiService();
