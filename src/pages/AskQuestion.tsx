@@ -15,6 +15,9 @@ const AskQuestion = () => {
   });
   const [isSubmitting, setIsSubmitting] = useState(false);
 
+  // Check if Supabase is configured
+  const isSupabaseConfigured = import.meta.env.VITE_SUPABASE_URL && import.meta.env.VITE_SUPABASE_ANON_KEY;
+
   const categories = [
     { id: 'academics', label: 'Academics' },
     { id: 'exams', label: 'Exams & Evaluation' },
@@ -28,6 +31,11 @@ const AskQuestion = () => {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!user) return;
+
+    if (!isSupabaseConfigured) {
+      alert('Community features require Supabase configuration. Please set up your environment variables.');
+      return;
+    }
 
     setIsSubmitting(true);
     try {

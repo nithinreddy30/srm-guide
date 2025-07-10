@@ -22,16 +22,24 @@ export const useSearch = () => {
       return;
     }
 
+    // Check if Supabase is configured
+    const isSupabaseConfigured = import.meta.env.VITE_SUPABASE_URL && import.meta.env.VITE_SUPABASE_ANON_KEY;
+
     setLoading(true);
     setQuery(searchQuery);
 
     try {
-      // Search questions
-      const { data: questions } = await supabase
-        .from('questions')
-        .select('id, title, content, category, created_at')
-        .or(`title.ilike.%${searchQuery}%,content.ilike.%${searchQuery}%`)
-        .limit(10);
+      let questions = null;
+      
+      if (isSupabaseConfigured) {
+        // Search questions
+        const { data } = await supabase
+          .from('questions')
+          .select('id, title, content, category, created_at')
+          .or(`title.ilike.%${searchQuery}%,content.ilike.%${searchQuery}%`)
+          .limit(10);
+        questions = data;
+      }
 
       // Create search results
       const searchResults: SearchResult[] = [];

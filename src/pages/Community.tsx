@@ -32,6 +32,9 @@ const Community = () => {
   const [selectedCategory, setSelectedCategory] = useState('all');
   const [sortBy, setSortBy] = useState('recent');
 
+  // Check if Supabase is configured
+  const isSupabaseConfigured = import.meta.env.VITE_SUPABASE_URL && import.meta.env.VITE_SUPABASE_ANON_KEY;
+
   const categories = [
     { id: 'all', label: 'All Questions' },
     { id: 'academics', label: 'Academics' },
@@ -50,6 +53,38 @@ const Community = () => {
   const fetchQuestions = async () => {
     setLoading(true);
     try {
+      if (!isSupabaseConfigured) {
+        // Show demo data when Supabase is not configured
+        setQuestions([
+          {
+            id: 'demo-1',
+            title: 'What is the minimum attendance required at SRM?',
+            content: 'I heard it\'s 75% but want to confirm. What happens if you fall below this?',
+            category: 'attendance',
+            created_at: new Date().toISOString(),
+            status: 'answered' as const,
+            upvotes: 5,
+            user_id: 'demo-user',
+            users: { name: 'Demo Student', role: 'freshman' },
+            answers: [{ id: 'demo-answer-1', is_best_answer: true }]
+          },
+          {
+            id: 'demo-2',
+            title: 'How to calculate GPA in SRM?',
+            content: 'Can someone explain the GPA calculation method used at SRM University?',
+            category: 'academics',
+            created_at: new Date(Date.now() - 86400000).toISOString(),
+            status: 'open' as const,
+            upvotes: 3,
+            user_id: 'demo-user-2',
+            users: { name: 'Another Student', role: 'freshman' },
+            answers: []
+          }
+        ]);
+        setLoading(false);
+        return;
+      }
+
       let query = supabase
         .from('questions')
         .select(`

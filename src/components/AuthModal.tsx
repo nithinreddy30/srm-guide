@@ -19,6 +19,7 @@ const AuthModal: React.FC<AuthModalProps> = ({ isOpen, onClose, mode, onModeChan
       onClose();
     } catch (error) {
       console.error('Error signing in:', error);
+      alert('Authentication requires Supabase configuration. Please set up your environment variables.');
     }
   };
 

@@ -16,7 +16,15 @@ export const useAuth = () => {
   const [profile, setProfile] = useState<UserProfile | null>(null);
   const [loading, setLoading] = useState(true);
 
+  // Check if Supabase is properly configured
+  const isSupabaseConfigured = import.meta.env.VITE_SUPABASE_URL && import.meta.env.VITE_SUPABASE_ANON_KEY;
+
   useEffect(() => {
+    if (!isSupabaseConfigured) {
+      setLoading(false);
+      return;
+    }
+
     // Get initial session
     supabase.auth.getSession().then(({ data: { session } }) => {
       setUser(session?.user ?? null);
@@ -85,6 +93,9 @@ export const useAuth = () => {
   };
 
   const signInWithGoogle = async () => {
+    if (!isSupabaseConfigured) {
+      throw new Error('Supabase is not configured. Please set up your environment variables.');
+    }
     const { error } = await supabase.auth.signInWithOAuth({
       provider: 'google',
       options: {
@@ -95,12 +106,18 @@ export const useAuth = () => {
   };
 
   const signOut = async () => {
+    if (!isSupabaseConfigured) {
+      throw new Error('Supabase is not configured.');
+    }
     const { error } = await supabase.auth.signOut();
     if (error) throw error;
   };
 
   const updateProfile = async (updates: Partial<UserProfile>) => {
     if (!user) return;
+    if (!isSupabaseConfigured) {
+      throw new Error('Supabase is not configured.');
+    }
 
     const { data, error } = await supabase
       .from('users')

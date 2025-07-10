@@ -61,6 +61,9 @@ const SearchBar: React.FC<SearchBarProps> = ({
     setQuery('');
   };
 
+  // Check if Supabase is configured for community features
+  const isSupabaseConfigured = import.meta.env.VITE_SUPABASE_URL && import.meta.env.VITE_SUPABASE_ANON_KEY;
+
   return (
     <div ref={searchRef} className={`relative ${className}`}>
       <form onSubmit={handleSubmit} className="relative">
@@ -132,6 +135,11 @@ const SearchBar: React.FC<SearchBarProps> = ({
           ) : query.trim() ? (
             <div className="p-4">
               <p className="text-sm text-gray-600 mb-3">No results found for "{query}"</p>
+              {!isSupabaseConfigured && (
+                <p className="text-xs text-orange-600 mb-2">
+                  Community search requires Supabase configuration
+                </p>
+              )}
               <button
                 onClick={() => {
                   navigate(`/chat?q=${encodeURIComponent(query)}`);
