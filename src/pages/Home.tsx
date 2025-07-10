@@ -1,23 +1,10 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
 import { motion } from 'framer-motion';
-import { Search, MessageSquare, HelpCircle, Calculator, BookOpen, Users, Award, Clock } from 'lucide-react';
+import { MessageSquare, HelpCircle, Calculator, BookOpen, Users, Award, Clock } from 'lucide-react';
+import SearchBar from '../components/SearchBar';
 
 const Home = () => {
-  const [searchQuery, setSearchQuery] = React.useState('');
-
-  const handleSearch = () => {
-    if (searchQuery.trim()) {
-      // Navigate to chat with the search query
-      window.location.href = `/chat?q=${encodeURIComponent(searchQuery)}`;
-    }
-  };
-
-  const handleKeyPress = (e: React.KeyboardEvent) => {
-    if (e.key === 'Enter') {
-      handleSearch();
-    }
-  };
   const features = [
     {
       icon: MessageSquare,
@@ -72,23 +59,10 @@ const Home = () => {
             
             {/* Search Bar */}
             <div className="max-w-2xl mx-auto mb-8">
-              <div className="relative">
-                <Search className="absolute left-4 top-1/2 transform -translate-y-1/2 h-5 w-5 text-gray-400" />
-                <input
-                  type="text"
-                  value={searchQuery}
-                  onChange={(e) => setSearchQuery(e.target.value)}
-                  onKeyPress={handleKeyPress}
-                  placeholder="Ask anything about SRM... (e.g., 'What is the pass criteria?')"
-                  className="w-full pl-12 pr-4 py-4 text-gray-900 rounded-lg focus:outline-none focus:ring-2 focus:ring-yellow-400"
-                />
-                <button 
-                  onClick={handleSearch}
-                  className="absolute right-2 top-1/2 transform -translate-y-1/2 bg-blue-600 text-white px-6 py-2 rounded-md hover:bg-blue-700 transition-colors"
-                >
-                  Search
-                </button>
-              </div>
+              <SearchBar 
+                placeholder="Ask anything about SRM... (e.g., 'What is the pass criteria?')"
+                className="text-gray-900"
+              />
             </div>
 
             {/* CTA Buttons */}

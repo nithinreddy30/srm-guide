@@ -10,6 +10,8 @@ import Dashboard from './pages/Dashboard';
 import Blog from './pages/Blog';
 import BlogPost from './pages/BlogPost';
 import Contact from './pages/Contact';
+import Community from './pages/Community';
+import AskQuestion from './pages/AskQuestion';
 
 function App() {
   return (
@@ -25,6 +27,8 @@ function App() {
             <Route path="/blog" element={<Blog />} />
             <Route path="/blog/:slug" element={<BlogPost />} />
             <Route path="/contact" element={<Contact />} />
+            <Route path="/community" element={<Community />} />
+            <Route path="/community/ask" element={<AskQuestion />} />
           </Routes>
         </AnimatePresence>
         <Footer />
