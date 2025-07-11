@@ -16,11 +16,11 @@ const AuthModal: React.FC<AuthModalProps> = ({ isOpen, onClose, mode, onModeChan
   const handleGoogleSignIn = async () => {
     try {
       await signInWithGoogle();
-      onClose();
     } catch (error) {
       console.error('Error signing in:', error);
-      alert('Authentication requires Supabase configuration. Please set up your environment variables.');
+      // Error is already handled in useAuth hook
     }
+    onClose();
   };
 
   return (

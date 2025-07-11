@@ -12,6 +12,7 @@ import BlogPost from './pages/BlogPost';
 import Contact from './pages/Contact';
 import Community from './pages/Community';
 import AskQuestion from './pages/AskQuestion';
+import QuestionDetail from './pages/QuestionDetail';
 
 function App() {
   return (
@@ -29,6 +30,7 @@ function App() {
             <Route path="/contact" element={<Contact />} />
             <Route path="/community" element={<Community />} />
             <Route path="/community/ask" element={<AskQuestion />} />
+            <Route path="/community/question/:id" element={<QuestionDetail />} />
           </Routes>
         </AnimatePresence>
         <Footer />

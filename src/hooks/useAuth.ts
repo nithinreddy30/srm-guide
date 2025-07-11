@@ -94,12 +94,13 @@ export const useAuth = () => {
 
   const signInWithGoogle = async () => {
     if (!isSupabaseConfigured) {
-      throw new Error('Supabase is not configured. Please set up your environment variables.');
+      alert('Authentication requires Supabase configuration. Please contact the administrator to set up the database connection.');
+      return;
     }
     const { error } = await supabase.auth.signInWithOAuth({
       provider: 'google',
       options: {
-        redirectTo: `${window.location.origin}/auth/callback`
+        redirectTo: `${window.location.origin}`
       }
     });
     if (error) throw error;
