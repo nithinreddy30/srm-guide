@@ -1,20 +1,29 @@
 import { GoogleGenerativeAI } from '@google/generative-ai';
 
 class GeminiService {
-  private genAI: GoogleGenerativeAI;
-  private model: any;
+  private genAI: GoogleGenerativeAI | null = null;
+  private model: any = null;
+  private isConfigured: boolean = false;
 
   constructor() {
-    const apiKey = import.meta.env.VITE_GEMINI_API_KEY;
-    if (!apiKey) {
-      throw new Error('Gemini API key not found. Please add VITE_GEMINI_API_KEY to your .env file');
+    try {
+      const apiKey = import.meta.env.VITE_GEMINI_API_KEY;
+      if (apiKey && apiKey !== 'your_gemini_api_key_here') {
+        this.genAI = new GoogleGenerativeAI(apiKey);
+        this.model = this.genAI.getGenerativeModel({ model: "gemini-1.5-flash" });
+        this.isConfigured = true;
+      }
+    } catch (error) {
+      console.warn('Gemini API not configured:', error);
+      this.isConfigured = false;
     }
-    
-    this.genAI = new GoogleGenerativeAI(apiKey);
-    this.model = this.genAI.getGenerativeModel({ model: "gemini-1.5-flash" });
   }
 
   async generateResponse(userMessage: string): Promise<string> {
+    if (!this.isConfigured || !this.model) {
+      throw new Error('AI Assistant is currently unavailable. Please check our FAQ section for common questions about SRM University, or contact support for help.');
+    }
+
     try {
       // Enhanced prompt with SRM-specific context
       const srmContext = `
@@ -47,7 +56,7 @@ Please respond in a friendly, helpful manner as if you're a senior student guidi
       
       if (error instanceof Error) {
         if (error.message.includes('API key')) {
-          throw new Error("I'm sorry, but there seems to be an issue with the API configuration. Please make sure the Gemini API key is properly set up.");
+          throw new Error("I'm sorry, but there seems to be an issue with the API configuration. Please check our FAQ section for common questions.");
         }
         if (error.message.includes('quota') || error.message.includes('limit') || error.message.includes('overloaded')) {
           throw new Error("I'm currently experiencing high traffic. Please try again in a moment, or check our FAQ section for common questions.");
@@ -59,6 +68,10 @@ Please respond in a friendly, helpful manner as if you're a senior student guidi
   }
 
   async generateBlogContent(topic: string): Promise<string> {
+    if (!this.isConfigured || !this.model) {
+      return "AI content generation is currently unavailable. Please check back later.";
+    }
+
     try {
       const prompt = `
 Write a comprehensive blog post about "${topic}" specifically for SRM University freshers. 
