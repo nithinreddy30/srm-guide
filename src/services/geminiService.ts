@@ -93,7 +93,10 @@ Please respond in a friendly, helpful manner as if you're a senior student guidi
         if (error.message.includes('API key')) {
           throw new Error("I'm sorry, but there seems to be an issue with the API configuration. Please check our FAQ section for common questions.");
         }
-        if (error.message.includes('quota') || error.message.includes('limit') || error.message.includes('overloaded') || error.message.includes('503')) {
+        if (error.message.includes('quota') || error.message.includes('limit') || error.message.includes('429')) {
+          throw new Error("The AI Assistant has exceeded its daily usage quota. Please try again tomorrow or check our FAQ section for common questions about SRM University.");
+        }
+        if (error.message.includes('overloaded') || error.message.includes('503')) {
           throw new Error("I'm currently experiencing high traffic. Please try again in a moment, or check our FAQ section for common questions.");
         }
       }
