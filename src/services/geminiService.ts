@@ -4,6 +4,9 @@ class GeminiService {
   private genAI: GoogleGenerativeAI | null = null;
   private model: any = null;
   private isConfigured: boolean = false;
+  private retryCount: number = 0;
+  private maxRetries: number = 3;
+  private retryDelay: number = 2000; // 2 seconds
 
   constructor() {
     try {
@@ -19,12 +22,42 @@ class GeminiService {
     }
   }
 
+  private async delay(ms: number): Promise<void> {
+    return new Promise(resolve => setTimeout(resolve, ms));
+  }
+
+  private async retryWithBackoff<T>(
+    operation: () => Promise<T>,
+    attempt: number = 1
+  ): Promise<T> {
+    try {
+      return await operation();
+    } catch (error) {
+      if (attempt >= this.maxRetries) {
+        throw error;
+      }
+
+      // Check if it's a retryable error
+      if (error instanceof Error && 
+          (error.message.includes('overloaded') || 
+           error.message.includes('503') ||
+           error.message.includes('temporarily unavailable'))) {
+        
+        const delayTime = this.retryDelay * Math.pow(2, attempt - 1); // Exponential backoff
+        await this.delay(delayTime);
+        return this.retryWithBackoff(operation, attempt + 1);
+      }
+
+      throw error;
+    }
+  }
+
   async generateResponse(userMessage: string): Promise<string> {
     if (!this.isConfigured || !this.model) {
       throw new Error('AI Assistant is currently unavailable. Please check our FAQ section for common questions about SRM University, or contact support for help.');
     }
 
-    try {
+    return this.retryWithBackoff(async () => {
       // Enhanced prompt with SRM-specific context
       const srmContext = `
 You are an AI assistant for SRM Guide, specifically designed to help freshers at SRM University (SRM Institute of Science and Technology) navigate college life. 
@@ -48,23 +81,25 @@ User Question: ${userMessage}
 Please respond in a friendly, helpful manner as if you're a senior student guiding a fresher.
 `;
 
-      const result = await this.model.generateContent(srmContext);
-      const response = await result.response;
-      return response.text();
-    } catch (error) {
-      console.error('Error generating response:', error);
-      
-      if (error instanceof Error) {
-        if (error.message.includes('API key')) {
-          throw new Error("I'm sorry, but there seems to be an issue with the API configuration. Please check our FAQ section for common questions.");
+      try {
+        const result = await this.model.generateContent(srmContext);
+        const response = await result.response;
+        return response.text();
+      } catch (error) {
+        console.error('Error generating response:', error);
+        
+        if (error instanceof Error) {
+          if (error.message.includes('API key')) {
+            throw new Error("I'm sorry, but there seems to be an issue with the API configuration. Please check our FAQ section for common questions.");
+          }
+          if (error.message.includes('quota') || error.message.includes('limit') || error.message.includes('overloaded') || error.message.includes('503')) {
+            throw new Error("I'm currently experiencing high traffic. Please try again in a moment, or check our FAQ section for common questions.");
+          }
         }
-        if (error.message.includes('quota') || error.message.includes('limit') || error.message.includes('overloaded')) {
-          throw new Error("I'm currently experiencing high traffic. Please try again in a moment, or check our FAQ section for common questions.");
-        }
+        
+        throw new Error("I'm sorry, I'm having trouble processing your request right now. Please try again later or browse our FAQ section for common questions about SRM University.");
       }
-      
-      throw new Error("I'm sorry, I'm having trouble processing your request right now. Please try again later or browse our FAQ section for common questions about SRM University.");
-    }
+    });
   }
 
   async generateBlogContent(topic: string): Promise<string> {

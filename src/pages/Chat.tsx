@@ -14,7 +14,7 @@ const Chat = () => {
   ]);
   const [inputMessage, setInputMessage] = useState('');
   const messagesEndRef = useRef<HTMLDivElement>(null);
-  const { sendMessage, isLoading } = useGemini();
+  const { sendMessage, isLoading, error } = useGemini();
 
   const sampleQuestions = [
     "What is the minimum attendance required at SRM?",
@@ -161,6 +161,14 @@ const Chat = () => {
 
           {/* Input */}
           <div className="p-6 border-t">
+            {error && (
+              <div className="mb-4 p-3 bg-red-50 border border-red-200 rounded-lg">
+                <div className="flex items-center space-x-2">
+                  <div className="w-2 h-2 bg-red-500 rounded-full"></div>
+                  <p className="text-sm text-red-700">{error}</p>
+                </div>
+              </div>
+            )}
             <div className="flex space-x-2">
               <textarea
                 value={inputMessage}

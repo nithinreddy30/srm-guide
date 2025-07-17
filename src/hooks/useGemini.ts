@@ -12,6 +12,7 @@ export interface Message {
 export const useGemini = () => {
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [retryCount, setRetryCount] = useState(0);
 
   const sendMessage = async (
     message: string,
@@ -40,6 +41,7 @@ export const useGemini = () => {
     setMessages(prev => [...prev, userMessage, loadingMessage]);
     setIsLoading(true);
     setError(null);
+    setRetryCount(0);
 
     try {
       const response = await geminiService.generateResponse(message);
@@ -52,12 +54,15 @@ export const useGemini = () => {
             : msg
         )
       );
+      setRetryCount(0); // Reset retry count on success
     } catch (err) {
       console.error('Error sending message:', err);
-      setError('Failed to get response. Please try again.');
       
       // Get the specific error message from the service
       const errorMessage = err instanceof Error ? err.message : 'Sorry, I encountered an error. Please try again or check our FAQ section.';
+      
+      // Set error state for UI feedback
+      setError(errorMessage);
       
       // Replace loading message with error message
       setMessages(prev => 
@@ -80,5 +85,6 @@ export const useGemini = () => {
     sendMessage,
     isLoading,
     error,
+    retryCount,
   };
 };
