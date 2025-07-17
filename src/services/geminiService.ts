@@ -61,8 +61,6 @@ class GeminiService {
       return await this.retryWithBackoff(async () => {
         // Enhanced prompt with SRM-specific context
         const srmContext = `
-      // Enhanced prompt with SRM-specific context
-      const srmContext = `
 You are an AI assistant for SRM Guide, specifically designed to help freshers at SRM University (SRM Institute of Science and Technology) navigate college life. 
 
 Key SRM University Information:
