@@ -57,7 +57,10 @@ class GeminiService {
       throw new Error('AI Assistant is currently unavailable. Please check our FAQ section for common questions about SRM University, or contact support for help.');
     }
 
-    return this.retryWithBackoff(async () => {
+    try {
+      return await this.retryWithBackoff(async () => {
+        // Enhanced prompt with SRM-specific context
+        const srmContext = `
       // Enhanced prompt with SRM-specific context
       const srmContext = `
 You are an AI assistant for SRM Guide, specifically designed to help freshers at SRM University (SRM Institute of Science and Technology) navigate college life. 
@@ -81,25 +84,24 @@ User Question: ${userMessage}
 Please respond in a friendly, helpful manner as if you're a senior student guiding a fresher.
 `;
 
-      try {
         const result = await this.model.generateContent(srmContext);
         const response = await result.response;
         return response.text();
-      } catch (error) {
-        console.error('Error generating response:', error);
-        
-        if (error instanceof Error) {
-          if (error.message.includes('API key')) {
-            throw new Error("I'm sorry, but there seems to be an issue with the API configuration. Please check our FAQ section for common questions.");
-          }
-          if (error.message.includes('quota') || error.message.includes('limit') || error.message.includes('overloaded') || error.message.includes('503')) {
-            throw new Error("I'm currently experiencing high traffic. Please try again in a moment, or check our FAQ section for common questions.");
-          }
+      });
+    } catch (error) {
+      console.error('Error generating response:', error);
+      
+      if (error instanceof Error) {
+        if (error.message.includes('API key')) {
+          throw new Error("I'm sorry, but there seems to be an issue with the API configuration. Please check our FAQ section for common questions.");
         }
-        
-        throw new Error("I'm sorry, I'm having trouble processing your request right now. Please try again later or browse our FAQ section for common questions about SRM University.");
+        if (error.message.includes('quota') || error.message.includes('limit') || error.message.includes('overloaded') || error.message.includes('503')) {
+          throw new Error("I'm currently experiencing high traffic. Please try again in a moment, or check our FAQ section for common questions.");
+        }
       }
-    });
+      
+      throw new Error("I'm sorry, I'm having trouble processing your request right now. Please try again later or browse our FAQ section for common questions about SRM University.");
+    }
   }
 
   async generateBlogContent(topic: string): Promise<string> {
