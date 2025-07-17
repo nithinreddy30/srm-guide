@@ -5,7 +5,7 @@ class GeminiService {
   private model: any = null;
   private isConfigured: boolean = false;
   private retryCount: number = 0;
-  private maxRetries: number = 5;
+  private maxRetries: number = 6;
   private retryDelay: number = 2000; // 2 seconds
 
   constructor() {
