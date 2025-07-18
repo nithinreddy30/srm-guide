@@ -1,7 +1,7 @@
 export const checkEnvironmentSetup = () => {
   const apiKey = import.meta.env.VITE_GEMINI_API_KEY;
   
-  if (!apiKey || apiKey === 'your_gemini_api_key_here') {
+  if (!apiKey || apiKey === 'your_actual_gemini_api_key_here' || apiKey === 'your_gemini_api_key_here') {
     console.warn('⚠️ Gemini API key not configured. AI features will be limited.');
     return false;
   }
@@ -13,8 +13,8 @@ export const checkEnvironmentSetup = () => {
 export const getApiKeyStatus = () => {
   const apiKey = import.meta.env.VITE_GEMINI_API_KEY;
   return {
-    isConfigured: apiKey && apiKey !== 'your_gemini_api_key_here',
+    isConfigured: apiKey && apiKey !== 'your_actual_gemini_api_key_here' && apiKey !== 'your_gemini_api_key_here',
     isEmpty: !apiKey,
-    isDefault: apiKey === 'your_gemini_api_key_here'
+    isDefault: apiKey === 'your_actual_gemini_api_key_here' || apiKey === 'your_gemini_api_key_here'
   };
 };
