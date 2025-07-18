@@ -38,25 +38,6 @@ const Chat = () => {
   const handleSendMessage = async () => {
     if (!inputMessage.trim() || isLoading) return;
     
-    // Check if Gemini is configured
-    const apiKey = import.meta.env.VITE_GEMINI_API_KEY;
-    if (!apiKey || apiKey === 'your_actual_gemini_api_key_here' || apiKey === 'your_gemini_api_key_here') {
-      const errorMessage: Message = {
-        id: messages.length + 1,
-        text: "I'm sorry, but the AI Assistant is currently unavailable. To enable the AI Assistant:\n\n1. Get your free Gemini API key from: https://makersuite.google.com/app/apikey\n2. Create a .env file in your project root\n3. Add: VITE_GEMINI_API_KEY=your_actual_api_key\n4. Restart the development server\n\nMeanwhile, please check our comprehensive FAQ section for answers to common questions about SRM University.",
-        sender: 'bot',
-        timestamp: new Date().toLocaleTimeString(),
-      };
-      setMessages(prev => [...prev, {
-        id: messages.length,
-        text: inputMessage,
-        sender: 'user',
-        timestamp: new Date().toLocaleTimeString(),
-      }, errorMessage]);
-      setInputMessage('');
-      return;
-    }
-    
     const messageToSend = inputMessage;
     setInputMessage('');
     await sendMessage(messageToSend, messages, setMessages);

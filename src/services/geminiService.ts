@@ -4,17 +4,21 @@ class GeminiService {
   private genAI: GoogleGenerativeAI | null = null;
   private model: any = null;
   private isConfigured: boolean = false;
-  private retryCount: number = 0;
   private maxRetries: number = 6;
   private retryDelay: number = 2000; // 2 seconds
 
   constructor() {
     try {
       const apiKey = import.meta.env.VITE_GEMINI_API_KEY;
+      console.log('Gemini API Key check:', apiKey ? 'Present' : 'Missing');
+      
       if (apiKey && apiKey !== 'your_actual_gemini_api_key_here' && apiKey !== 'your_gemini_api_key_here') {
         this.genAI = new GoogleGenerativeAI(apiKey);
         this.model = this.genAI.getGenerativeModel({ model: "gemini-1.5-flash" });
         this.isConfigured = true;
+        console.log('Gemini service configured successfully');
+      } else {
+        console.warn('Gemini API key not configured or using placeholder value');
       }
     } catch (error) {
       console.warn('Gemini API not configured:', error);
