@@ -46,6 +46,10 @@ export const useGemini = () => {
     try {
       const response = await geminiService.generateResponse(message);
       
+      if (!response || response.trim() === '') {
+        throw new Error('Empty response from AI service');
+      }
+      
       // Replace loading message with actual response
       setMessages(prev => 
         prev.map(msg => 
@@ -58,8 +62,17 @@ export const useGemini = () => {
     } catch (err) {
       console.error('Error sending message:', err);
       
-      // Get the specific error message from the service
-      const errorMessage = err instanceof Error ? err.message : 'Sorry, I encountered an error. Please try again or check our FAQ section.';
+      let errorMessage: string;
+      
+      if (err instanceof Error) {
+        if (err.message.includes('AI Assistant is currently unavailable')) {
+          errorMessage = "I'm sorry, but the AI Assistant is currently unavailable. To enable the AI Assistant:\n\n1. Get your free Gemini API key from: https://makersuite.google.com/app/apikey\n2. Create a .env file in your project root\n3. Add: VITE_GEMINI_API_KEY=your_actual_api_key\n4. Restart the development server\n\nMeanwhile, please check our comprehensive FAQ section for answers to common questions about SRM University.";
+        } else {
+          errorMessage = err.message;
+        }
+      } else {
+        errorMessage = 'Sorry, I encountered an error. Please try again or check our FAQ section.';
+      }
       
       // Set error state for UI feedback
       setError(errorMessage);

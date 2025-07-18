@@ -19,11 +19,12 @@ npm install
 
 ### 2. Configure Gemini API
 1. Get your Gemini API key from [Google AI Studio](https://makersuite.google.com/app/apikey)
-2. Create a `.env` file in the root directory
+2. Create a `.env` file in the root directory (copy from `.env.example`)
 3. Add your API key:
 ```env
 VITE_GEMINI_API_KEY=your_actual_api_key_here
 ```
+4. Restart the development server: `npm run dev`
 
 ### 3. Run the Application
 ```bash
