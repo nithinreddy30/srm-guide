@@ -1,5 +1,6 @@
 import { useState } from 'react';
 import { geminiService } from '../services/geminiService';
+import { getApiKeyStatus } from '../utils/envCheck';
 
 export interface Message {
   id: number;
@@ -20,6 +21,30 @@ export const useGemini = () => {
     setMessages: React.Dispatch<React.SetStateAction<Message[]>>
   ) => {
     if (!message.trim()) return;
+
+    // Check API key status before proceeding
+    const apiKeyStatus = getApiKeyStatus();
+    if (!apiKeyStatus.isConfigured) {
+      const errorMessage = "I'm sorry, but the AI Assistant is currently unavailable in this deployment. Please check our comprehensive FAQ section for answers to common questions about SRM University, or contact support for assistance.";
+      
+      const userMessage: Message = {
+        id: messages.length + 1,
+        text: message,
+        sender: 'user',
+        timestamp: new Date().toLocaleTimeString(),
+      };
+
+      const botMessage: Message = {
+        id: messages.length + 2,
+        text: errorMessage,
+        sender: 'bot',
+        timestamp: new Date().toLocaleTimeString(),
+      };
+
+      setMessages(prev => [...prev, userMessage, botMessage]);
+      setError(errorMessage);
+      return;
+    }
 
     // Add user message
     const userMessage: Message = {
@@ -66,7 +91,7 @@ export const useGemini = () => {
       
       if (err instanceof Error) {
         if (err.message.includes('AI Assistant is currently unavailable')) {
-          errorMessage = "I'm sorry, but the AI Assistant is currently unavailable. To enable the AI Assistant:\n\n1. Get your free Gemini API key from: https://makersuite.google.com/app/apikey\n2. Create a .env file in your project root\n3. Add: VITE_GEMINI_API_KEY=your_actual_api_key\n4. Restart the development server\n\nMeanwhile, please check our comprehensive FAQ section for answers to common questions about SRM University.";
+          errorMessage = "I'm sorry, but the AI Assistant is currently unavailable in this deployment. Please check our comprehensive FAQ section for answers to common questions about SRM University, or contact support for assistance.";
         } else {
           errorMessage = err.message;
         }
@@ -75,7 +100,7 @@ export const useGemini = () => {
       }
       
       // Set error state for UI feedback
-      setError(errorMessage);
+      setError("AI Assistant temporarily unavailable. Please try our FAQ section.");
       
       // Replace loading message with error message
       setMessages(prev => 

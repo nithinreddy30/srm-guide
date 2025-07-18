@@ -2,6 +2,7 @@ import React, { useState, useRef, useEffect } from 'react';
 import { Search, MessageSquare, ArrowRight } from 'lucide-react';
 import { useSearch } from '../hooks/useSearch';
 import { Link, useNavigate } from 'react-router-dom';
+import { getApiKeyStatus } from '../utils/envCheck';
 
 interface SearchBarProps {
   placeholder?: string;
@@ -19,6 +20,7 @@ const SearchBar: React.FC<SearchBarProps> = ({
   const { results, loading, search } = useSearch();
   const searchRef = useRef<HTMLDivElement>(null);
   const navigate = useNavigate();
+  const apiKeyStatus = getApiKeyStatus();
 
   useEffect(() => {
     const handleClickOutside = (event: MouseEvent) => {
@@ -49,8 +51,11 @@ const SearchBar: React.FC<SearchBarProps> = ({
     if (query.trim()) {
       if (onSearch) {
         onSearch(query);
-      } else {
+      } else if (apiKeyStatus.isConfigured) {
         navigate(`/chat?q=${encodeURIComponent(query)}`);
+      } else {
+        // Redirect to FAQ if AI is not available
+        navigate('/faq');
       }
       setShowResults(false);
     }
@@ -142,13 +147,17 @@ const SearchBar: React.FC<SearchBarProps> = ({
               )}
               <button
                 onClick={() => {
-                  navigate(`/chat?q=${encodeURIComponent(query)}`);
+                  if (apiKeyStatus.isConfigured) {
+                    navigate(`/chat?q=${encodeURIComponent(query)}`);
+                  } else {
+                    navigate('/faq');
+                  }
                   setShowResults(false);
                 }}
                 className="flex items-center space-x-2 text-blue-600 hover:text-blue-700 text-sm"
               >
                 <MessageSquare className="h-4 w-4" />
-                <span>Ask our AI Assistant instead</span>
+                <span>{apiKeyStatus.isConfigured ? 'Ask our AI Assistant instead' : 'Check our FAQ section instead'}</span>
               </button>
             </div>
           ) : null}

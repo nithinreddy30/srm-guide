@@ -2,6 +2,7 @@ import React, { useState, useRef, useEffect } from 'react';
 import { motion } from 'framer-motion';
 import { Send, Bot, User, Lightbulb, Loader } from 'lucide-react';
 import { useGemini, Message } from '../hooks/useGemini';
+import { getApiKeyStatus } from '../utils/envCheck';
 
 const Chat = () => {
   const [messages, setMessages] = useState<Message[]>([
@@ -15,6 +16,7 @@ const Chat = () => {
   const [inputMessage, setInputMessage] = useState('');
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const { sendMessage, isLoading, error } = useGemini();
+  const apiKeyStatus = getApiKeyStatus();
 
   const sampleQuestions = [
     "What is the minimum attendance required at SRM?",
@@ -142,11 +144,33 @@ const Chat = () => {
 
           {/* Input */}
           <div className="p-6 border-t">
+            {!apiKeyStatus.isConfigured && (
+              <div className="mb-4 p-4 bg-yellow-50 border border-yellow-200 rounded-lg">
+                <div className="flex items-start space-x-3">
+                  <div className="w-2 h-2 bg-yellow-500 rounded-full mt-2"></div>
+                  <div>
+                    <p className="text-sm text-yellow-800 font-medium mb-1">AI Assistant Unavailable</p>
+                    <p className="text-sm text-yellow-700">
+                      The AI Assistant is not configured in this deployment. Please check our 
+                      <a href="/faq" className="underline hover:text-yellow-900 mx-1">FAQ section</a>
+                      for answers to common questions about SRM University.
+                    </p>
+                  </div>
+                </div>
+              </div>
+            )}
             {error && (
-              <div className="mb-4 p-3 bg-red-50 border border-red-200 rounded-lg">
+              <div className="mb-4 p-4 bg-blue-50 border border-blue-200 rounded-lg">
                 <div className="flex items-center space-x-2">
-                  <div className="w-2 h-2 bg-red-500 rounded-full"></div>
-                  <p className="text-sm text-red-700">{error}</p>
+                  <div className="w-2 h-2 bg-blue-500 rounded-full"></div>
+                  <div>
+                    <p className="text-sm text-blue-800 font-medium">Service Notice</p>
+                    <p className="text-sm text-blue-700 mt-1">
+                      AI Assistant is temporarily unavailable. Please check our 
+                      <a href="/faq" className="underline hover:text-blue-900 mx-1">FAQ section</a>
+                      for comprehensive answers about SRM University.
+                    </p>
+                  </div>
                 </div>
               </div>
             )}
@@ -158,20 +182,33 @@ const Chat = () => {
                 placeholder="Ask your question about SRM..."
                 className="flex-1 px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 resize-none"
                 rows={1}
-                disabled={isLoading}
+                disabled={isLoading || !apiKeyStatus.isConfigured}
               />
               <button
                 onClick={handleSendMessage}
-                disabled={!inputMessage.trim() || isLoading}
-                className="bg-blue-600 text-white px-6 py-2 rounded-lg hover:bg-blue-700 transition-colors disabled:opacity-50 disabled:cursor-not-allowed flex items-center space-x-2"
+                disabled={!inputMessage.trim() || isLoading || !apiKeyStatus.isConfigured}
+                className={`px-6 py-2 rounded-lg transition-colors disabled:opacity-50 disabled:cursor-not-allowed flex items-center space-x-2 ${
+                  !apiKeyStatus.isConfigured 
+                    ? 'bg-gray-400 text-gray-600' 
+                    : 'bg-blue-600 text-white hover:bg-blue-700'
+                }`}
               >
                 {isLoading ? (
                   <Loader className="h-5 w-5 animate-spin" />
                 ) : (
                   <Send className="h-5 w-5" />
                 )}
+                <span className="hidden sm:inline">
+                  {!apiKeyStatus.isConfigured ? 'Unavailable' : 'Send'}
+                </span>
               </button>
             </div>
+            {!apiKeyStatus.isConfigured && (
+              <p className="text-xs text-gray-500 mt-2 text-center">
+                Try our <a href="/faq" className="text-blue-600 hover:underline">FAQ section</a> or 
+                <a href="/contact" className="text-blue-600 hover:underline ml-1">contact us</a> for help
+              </p>
+            )}
           </div>
         </motion.div>
 

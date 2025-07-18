@@ -58,7 +58,7 @@ class GeminiService {
 
   async generateResponse(userMessage: string): Promise<string> {
     if (!this.isConfigured || !this.model) {
-      throw new Error('AI Assistant is currently unavailable. Please check our FAQ section for common questions about SRM University, or contact support for help.');
+      throw new Error('AI Assistant is currently unavailable in this deployment. Please check our comprehensive FAQ section for answers to common questions about SRM University.');
     }
 
     try {
@@ -95,17 +95,17 @@ Please respond in a friendly, helpful manner as if you're a senior student guidi
       
       if (error instanceof Error) {
         if (error.message.includes('API key')) {
-          throw new Error("I'm sorry, but there seems to be an issue with the API configuration. Please check our FAQ section for common questions.");
+          throw new Error("The AI Assistant is not available in this deployment. Please check our FAQ section for comprehensive answers about SRM University.");
         }
         if (error.message.includes('quota') || error.message.includes('limit') || error.message.includes('429')) {
-          throw new Error("The AI Assistant has exceeded its daily usage quota. Please try again tomorrow or check our FAQ section for common questions about SRM University.");
+          throw new Error("The AI service has reached its usage limit. Please check our FAQ section for answers to common questions about SRM University.");
         }
         if (error.message.includes('overloaded') || error.message.includes('503')) {
-          throw new Error("I'm currently experiencing high traffic. Please try again in a moment, or check our FAQ section for common questions.");
+          throw new Error("The AI service is temporarily overloaded. Please check our FAQ section for comprehensive information about SRM University.");
         }
       }
       
-      throw new Error("I'm sorry, I'm having trouble processing your request right now. Please try again later or browse our FAQ section for common questions about SRM University.");
+      throw new Error("AI Assistant is temporarily unavailable. Please check our FAQ section for comprehensive answers about SRM University.");
     }
   }
 

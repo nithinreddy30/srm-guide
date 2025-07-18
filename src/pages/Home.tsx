@@ -3,8 +3,11 @@ import { Link } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import { MessageSquare, HelpCircle, Calculator, BookOpen, Users, Award, Clock } from 'lucide-react';
 import SearchBar from '../components/SearchBar';
+import { getApiKeyStatus } from '../utils/envCheck';
 
 const Home = () => {
+  const apiKeyStatus = getApiKeyStatus();
+
   const features = [
     {
       icon: MessageSquare,
@@ -67,12 +70,21 @@ const Home = () => {
 
             {/* CTA Buttons */}
             <div className="flex flex-col sm:flex-row gap-4 justify-center">
-              <Link
-                to="/chat"
-                className="bg-yellow-400 text-blue-900 px-8 py-3 rounded-lg font-semibold hover:bg-yellow-300 transition-colors"
-              >
-                Ask AI Assistant
-              </Link>
+              {apiKeyStatus.isConfigured ? (
+                <Link
+                  to="/chat"
+                  className="bg-yellow-400 text-blue-900 px-8 py-3 rounded-lg font-semibold hover:bg-yellow-300 transition-colors"
+                >
+                  Ask AI Assistant
+                </Link>
+              ) : (
+                <Link
+                  to="/faq"
+                  className="bg-yellow-400 text-blue-900 px-8 py-3 rounded-lg font-semibold hover:bg-yellow-300 transition-colors"
+                >
+                  Browse FAQ
+                </Link>
+              )}
               <Link
                 to="/faq"
                 className="bg-transparent border-2 border-white text-white px-8 py-3 rounded-lg font-semibold hover:bg-white hover:text-blue-900 transition-colors"
@@ -166,12 +178,21 @@ const Home = () => {
             <p className="text-xl mb-8 max-w-2xl mx-auto">
               Join thousands of students who have successfully navigated their college life with SRM Guide.
             </p>
-            <Link
-              to="/chat"
-              className="bg-yellow-400 text-blue-900 px-8 py-4 rounded-lg font-semibold text-lg hover:bg-yellow-300 transition-colors"
-            >
-              Get Started Now
-            </Link>
+            {apiKeyStatus.isConfigured ? (
+              <Link
+                to="/chat"
+                className="bg-yellow-400 text-blue-900 px-8 py-4 rounded-lg font-semibold text-lg hover:bg-yellow-300 transition-colors"
+              >
+                Get Started Now
+              </Link>
+            ) : (
+              <Link
+                to="/faq"
+                className="bg-yellow-400 text-blue-900 px-8 py-4 rounded-lg font-semibold text-lg hover:bg-yellow-300 transition-colors"
+              >
+                Explore FAQ
+              </Link>
+            )}
           </motion.div>
         </div>
       </section>
