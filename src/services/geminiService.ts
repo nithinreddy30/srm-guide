@@ -11,7 +11,7 @@ class GeminiService {
   constructor() {
     try {
       const apiKey = import.meta.env.VITE_GEMINI_API_KEY;
-      if (apiKey && apiKey !== 'your_gemini_api_key_here') {
+      if (apiKey && apiKey !== 'your_actual_gemini_api_key_here' && apiKey !== 'your_gemini_api_key_here') {
         this.genAI = new GoogleGenerativeAI(apiKey);
         this.model = this.genAI.getGenerativeModel({ model: "gemini-1.5-flash" });
         this.isConfigured = true;
